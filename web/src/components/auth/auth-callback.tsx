@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getUserManager } from "@/lib/auth/oidc-client";
+import { withBasePath } from "@/lib/base-path";
 import { publicConfig } from "@/lib/public-config";
 
 export function AuthCallback() {
@@ -20,7 +21,7 @@ export function AuthCallback() {
     if (!manager) return;
 
     const callbackUrl = window.location.href;
-    window.history.replaceState(null, "", "/auth/callback/");
+    window.history.replaceState(null, "", withBasePath("/auth/callback/"));
     void manager
       .signinCallback(callbackUrl)
       .then((user) => {

@@ -1,9 +1,15 @@
 name: Deploy frontend to Cloudflare Pages
 
+# Disabled: GitHub Pages (deploy-github-pages.yml) is the production host.
+# To re-enable, restore the push trigger below and change `if: false` to
+# `if: true` on the job. Re-check NEXT_PUBLIC_BASE_PATH afterwards: Cloudflare
+# serves the site from the domain root, while GitHub Pages serves it from a
+# sub-path.
+
 on:
-  push:
-    branches:
-      - master
+  # push:
+  #   branches:
+  #     - master
   workflow_dispatch:
 
 permissions:
@@ -15,7 +21,8 @@ concurrency:
 
 jobs:
   deploy:
-    if: github.ref == 'refs/heads/master'
+    # Disabled: flip `false` to `true` to re-enable this deployment.
+    if: false && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     env:
       NEXT_PUBLIC_API_BASE_URL: ${{ vars.NEXT_PUBLIC_API_BASE_URL }}

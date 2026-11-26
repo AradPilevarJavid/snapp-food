@@ -1,0 +1,107 @@
+name: Deploy frontend to GitHub Pages
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: github-pages-production
+  cancel-in-progress: true
+
+jobs:
+  build:
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_API_BASE_URL: ${{ vars.NEXT_PUBLIC_API_BASE_URL }}
+      NEXT_PUBLIC_OIDC_AUTHORITY: ${{ vars.NEXT_PUBLIC_OIDC_AUTHORITY }}
+      NEXT_PUBLIC_OIDC_CLIENT_ID: ${{ vars.NEXT_PUBLIC_OIDC_CLIENT_ID }}
+      NEXT_PUBLIC_OIDC_RESOURCE: ${{ vars.NEXT_PUBLIC_OIDC_RESOURCE }}
+      NEXT_PUBLIC_CURRENCY: ${{ vars.NEXT_PUBLIC_CURRENCY }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.12"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Resolve the GitHub Pages base path
+        env:
+          PAGES_BASE_PATH: ${{ vars.PAGES_BASE_PATH }}
+        run: |
+          repository_name="${GITHUB_REPOSITORY#*/}"
+          lowercased_name="${repository_name,,}"
+          if [ -n "$PAGES_BASE_PATH" ]; then
+            base_path="$PAGES_BASE_PATH"
+          elif [ "${lowercased_name%.github.io}" != "$lowercased_name" ]; then
+            base_path="/"
+          else
+            base_path="/$repository_name"
+          fi
+          case "$base_path" in
+            "")
+              base_path=""
+              ;;
+            /*)
+              base_path="${base_path%/}"
+              ;;
+            *)
+              echo "::error::The PAGES_BASE_PATH variable must be '/' or start with '/'"
+              exit 1
+              ;;
+          esac
+          echo "NEXT_PUBLIC_BASE_PATH=$base_path" >> "$GITHUB_ENV"
+          echo "GitHub Pages base path: ${base_path:-<root>}"
+
+      - name: Install API contract generation dependencies
+        run: python -m pip install -r api/requirements.txt
+
+      - name: Validate required public frontend configuration
+        run: |
+          test -n "$NEXT_PUBLIC_API_BASE_URL" || { echo "::error::Set the NEXT_PUBLIC_API_BASE_URL repository variable"; exit 1; }
+          test -n "$NEXT_PUBLIC_OIDC_AUTHORITY" || { echo "::error::Set the NEXT_PUBLIC_OIDC_AUTHORITY repository variable"; exit 1; }
+          test -n "$NEXT_PUBLIC_OIDC_CLIENT_ID" || { echo "::error::Set the NEXT_PUBLIC_OIDC_CLIENT_ID repository variable"; exit 1; }
+          test -n "$NEXT_PUBLIC_CURRENCY" || { echo "::error::Set the NEXT_PUBLIC_CURRENCY repository variable"; exit 1; }
+
+      - name: Install dependencies and verify production build
+        run: npm ci && npm run check
+        working-directory: web
+
+      - name: Mark the export as Jekyll-free
+        run: touch web/out/.nojekyll
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5
+        with:
+          path: web/out
+          include-hidden-files: true
+
+  deploy:
+    needs: build
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy site
+        id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5

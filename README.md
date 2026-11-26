@@ -2,25 +2,29 @@
 
 Snapfood consists of a static Next.js frontend in [`web/`](web/README.md) and a
 separately deployed FastAPI backend in [`api/`](api/README.md). The frontend is
-exported as static files; Cloudflare Pages is the production host. GitHub Pages
-is a redirect-only project site and does not host the application.
+exported as static files and served by GitHub Pages; the Cloudflare Pages
+workflow is kept in the repository but disabled.
 
 ## Deployment
 
-- Cloudflare Pages serves the production frontend. Its provisional public
-  origin is `https://snapp-food.pages.dev/`; confirm the Cloudflare project and
-  origin before treating this as final.
-- GitHub Pages serves only a redirect at
-  `https://aradpilevarjavid.github.io/snap-food/`. Its workflow publishes
-  `index.html` and `404.html` pointing to the production origin.
-- Both workflows deploy only from `master`. Manual dispatch is supported but
-  is also restricted to `master`; pull requests do not deploy.
-- The Cloudflare workflow installs the API contract-generation dependencies
-  from `api/requirements.txt`, then runs `npm ci`, `npm run api:generate`, and
-  `npm run build` in `web/`. The static site and Cloudflare `_headers` file are
-  produced in `web/out/`.
-  The redirect workflow uses `web/scripts/generate_pages_redirect.py` and
-  publishes `web/redirect-out/`.
+- GitHub Pages serves the production frontend at
+  `https://aradpilevarjavid.github.io/snap-food/`.
+- The repository is not named `*.github.io`, so the site is served from the
+  `/snap-food` sub-path. The workflow derives the base path from the repository
+  name and passes it to the build as `NEXT_PUBLIC_BASE_PATH`. Set the optional
+  `PAGES_BASE_PATH` Actions variable to `/` if the site must be served from the
+  domain root (a `*.github.io` repository or a custom domain).
+- The Pages workflow installs the API contract-generation dependencies from
+  `api/requirements.txt`, then runs `npm ci` and `npm run check` in `web/`. The
+  check regenerates the API contract, lints, typechecks, runs the tests, and
+  creates the static export plus the `web/out/_headers` file, which the
+  workflow then publishes with the official Pages actions.
+- The Cloudflare Pages workflow is disabled while GitHub Pages is the host.
+  Restore its `push` trigger and its job `if` guard to run it again. Cloudflare
+  serves the site from the domain root, so leave `NEXT_PUBLIC_BASE_PATH` unset
+  when re-enabling it.
+- Deployments run only from `master`. Manual dispatch is supported but is also
+  restricted to `master`; pull requests do not deploy.
 
 ### GitHub configuration
 
@@ -29,38 +33,41 @@ deployments:
 
 | Variable | Required | Purpose |
 | --- | --- | --- |
-| `CLOUDFLARE_ACCOUNT_ID` | Yes | Cloudflare account identifier for Wrangler. |
-| `CLOUDFLARE_PAGES_PROJECT` | Yes | Existing Cloudflare Pages project name. |
+| `CLOUDFLARE_ACCOUNT_ID` | Only if the Cloudflare workflow is re-enabled | Cloudflare account identifier for Wrangler. |
+| `CLOUDFLARE_PAGES_PROJECT` | Only if the Cloudflare workflow is re-enabled | Existing Cloudflare Pages project name. |
 | `NEXT_PUBLIC_API_BASE_URL` | Yes | HTTPS origin/base URL of the separately deployed API. |
 | `NEXT_PUBLIC_OIDC_AUTHORITY` | Yes | HTTPS issuer/authority configured by the identity-provider owner. |
 | `NEXT_PUBLIC_OIDC_CLIENT_ID` | Yes | Public client identifier registered for the frontend. |
 | `NEXT_PUBLIC_OIDC_RESOURCE` | No | Optional API resource/audience requested by the frontend; coordinate it with the API's `OIDC_AUDIENCE`. |
 | `NEXT_PUBLIC_CURRENCY` | Yes for production display | Currency code used when formatting the API's decimal price strings. The API does not return a currency field; choose the appropriate currency for the deployment. |
-| `PRODUCTION_WEB_URL` | Yes | Confirmed HTTPS destination for the GitHub Pages redirect. |
+| `PAGES_BASE_PATH` | No | Overrides the base path derived from the repository name. Use `/` for a site served from the domain root; any other value must start with `/` and must not end with it. |
 
 `NEXT_PUBLIC_*` values are compiled into public browser assets, not secrets.
 The OIDC authority and client ID must either both be configured or both be
 empty. Set the API URL and the real identity-provider values only after the API
 and provider are configured; do not put credentials or tokens in these
-variables. The Cloudflare workflow fails before building if the API URL,
-authority, or client ID is missing. `NEXT_PUBLIC_CURRENCY` is passed to the
-build when configured; set it for production so decimal prices have meaningful
-currency display. It is intentionally left blank in the example because no
-currency is assumed. The GitHub Pages workflow also fails unless
-`PRODUCTION_WEB_URL` is set, so it cannot publish a redirect to an unconfirmed
-provisional address.
+variables. The Pages workflow fails before building if the API URL, authority,
+or client ID is missing. `NEXT_PUBLIC_CURRENCY` is passed to the build when
+configured; set it for production so decimal prices have meaningful currency
+display. It is intentionally left blank in the example because no currency is
+assumed.
 
-Add the `CLOUDFLARE_API_TOKEN` **Actions secret** with only the Cloudflare
-Pages edit permission needed for the selected account/project. The workflow
-uses the `github-pages` environment and the standard `GITHUB_TOKEN` Pages
-permissions for its redirect-only deployment. Enable GitHub Pages with
-**GitHub Actions** as the source in repository settings.
+Enable GitHub Pages with **GitHub Actions** as the source in repository
+settings; the workflow uses the `github-pages` environment and the standard
+`GITHUB_TOKEN` Pages permissions. Add the `CLOUDFLARE_API_TOKEN` **Actions
+secret** with only the Cloudflare Pages edit permission needed for the selected
+account/project if you re-enable the Cloudflare workflow.
 
 The frontend build generates route-specific CSP and related security headers
 in `web/out/_headers`. Their `connect-src` allowlist includes the configured
-HTTPS API and OIDC origins. Cloudflare Pages applies `_headers` to static
-responses. GitHub Pages cannot serve these custom response headers here; it
-only serves the noindex redirect and fallback redirect.
+HTTPS API and OIDC origins. GitHub Pages cannot attach custom response headers
+to static files, so those headers are not applied to the Pages deployment;
+they take effect again only if the Cloudflare workflow is re-enabled.
+
+Configure the identity provider with
+`https://aradpilevarjavid.github.io/snap-food/auth/callback/` as a redirect URI,
+and include `https://aradpilevarjavid.github.io` in the API's `CORS_ORIGINS`
+allowlist, so that sign-in and API calls work from the Pages origin.
 
 The workflows deploy the frontend only. A production API, PostgreSQL database,
 OIDC provider registration, API environment configuration, migrations, and
