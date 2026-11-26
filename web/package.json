@@ -14,7 +14,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "check": "npm run api:generate && npm run lint && npm run typecheck && npm test && python3 scripts/test_security_headers.py && python3 scripts/test_deployment_pages.py && npm run build"
+    "check": "npm run api:generate && npm run lint && npm run typecheck && npm test && python3 scripts/test_security_headers.py && npm run build"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.108.4",

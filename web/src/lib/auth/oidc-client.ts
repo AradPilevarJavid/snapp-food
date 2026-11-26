@@ -5,6 +5,7 @@ import {
   UserManager,
   WebStorageStateStore,
 } from "oidc-client-ts";
+import { withBasePath } from "@/lib/base-path";
 import { publicConfig } from "@/lib/public-config";
 
 let userManager: UserManager | null = null;
@@ -17,8 +18,14 @@ export function getUserManager(): UserManager | null {
   userManager = new UserManager({
     authority: publicConfig.oidcAuthority,
     client_id: publicConfig.oidcClientId,
-    redirect_uri: new URL("/auth/callback/", window.location.origin).href,
-    post_logout_redirect_uri: new URL("/", window.location.origin).href,
+    redirect_uri: new URL(
+      withBasePath("/auth/callback/"),
+      window.location.origin,
+    ).href,
+    post_logout_redirect_uri: new URL(
+      withBasePath("/"),
+      window.location.origin,
+    ).href,
     response_type: "code",
     scope: "openid profile email",
     automaticSilentRenew: false,

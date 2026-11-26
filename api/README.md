@@ -131,7 +131,7 @@ production frontend. The runtime must provide the following settings:
 | `OIDC_ISSUER` | Runtime variable | Exact HTTPS issuer used by the provider and frontend registration. |
 | `OIDC_AUDIENCE` | Runtime variable | API audience accepted in access tokens; coordinate with the frontend's optional `NEXT_PUBLIC_OIDC_RESOURCE`. |
 | `OIDC_JWKS_URL` | Runtime variable | Trusted HTTPS JWKS endpoint selected by the deployment owner. |
-| `CORS_ORIGINS` | Runtime variable | Exact HTTPS production frontend origin, initially `https://snapp-food.pages.dev` if that provisional origin is confirmed. |
+| `CORS_ORIGINS` | Runtime variable | Exact HTTPS production frontend origin, for example `https://aradpilevarjavid.github.io` (the GitHub Pages origin, without its `/snap-food` path). |
 
 The app's checks require all six settings, including `APP_ENV`. Keep database
 credentials only in the API platform's secret manager. The issuer, audience,
@@ -146,15 +146,16 @@ environment variable or a backend contract change.
 
 Before exposing the frontend, configure the identity provider's browser client
 for the production frontend origin and callback
-`/auth/callback/`, and ensure the API accepts only the intended access-token
+`https://aradpilevarjavid.github.io/snap-food/auth/callback/`, and ensure the
+API accepts only the intended access-token
 audience. The repository does not select an identity provider or supply its
 issuer, client registration, JWKS endpoint, or credentials.
 
 Apply Alembic migrations with the separately provisioned migration role before
 starting the production service. Configure TLS, request limits, health
 monitoring, backups, and process supervision at the API deployment edge. The
-GitHub Pages project-site origin is redirect-only and should not be added as an
-API CORS origin; browsers navigate to the Cloudflare origin after the redirect.
+GitHub Pages origin serves the frontend, so it must be listed in
+`CORS_ORIGINS` as an origin without a path.
 
 ## Database migrations
 
