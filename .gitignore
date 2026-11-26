@@ -9,10 +9,12 @@ images/
 
 # database and datafile
 *.json
+!web/package.json
+!web/package-lock.json
+!api/openapi.json
 *.db
 
 # images
 *.jpg
 *.jpeg
 *.png
-

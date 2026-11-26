@@ -1,0 +1,1 @@
+"""Snapfood API service."""

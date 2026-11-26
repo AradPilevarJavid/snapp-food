@@ -1,0 +1,1239 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Snapfood API",
+    "description": "Pickup-only restaurant ordering API. OIDC identity is authenticated by the API; customer roles and manager ownership are enforced from the database.",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/restaurants": {
+      "get": {
+        "tags": [
+          "restaurants"
+        ],
+        "summary": "List Restaurants",
+        "operationId": "list_restaurants_restaurants_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/RestaurantRead"
+                  },
+                  "type": "array",
+                  "title": "Response List Restaurants Restaurants Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/restaurants/{restaurant_id}": {
+      "get": {
+        "tags": [
+          "restaurants"
+        ],
+        "summary": "Read Restaurant",
+        "operationId": "read_restaurant_restaurants__restaurant_id__get",
+        "parameters": [
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Restaurant Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestaurantRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/restaurants/{restaurant_id}/menu": {
+      "get": {
+        "tags": [
+          "restaurants"
+        ],
+        "summary": "Read Menu",
+        "operationId": "read_menu_restaurants__restaurant_id__menu_get",
+        "parameters": [
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Restaurant Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MenuItemRead"
+                  },
+                  "title": "Response Read Menu Restaurants  Restaurant Id  Menu Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/manager/restaurants": {
+      "get": {
+        "tags": [
+          "manager"
+        ],
+        "summary": "List restaurants assigned to the current manager",
+        "operationId": "manager_restaurants_manager_restaurants_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/RestaurantManagerRead"
+                  },
+                  "type": "array",
+                  "title": "Response Manager Restaurants Manager Restaurants Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/manager/restaurants/{restaurant_id}/menu": {
+      "get": {
+        "tags": [
+          "manager"
+        ],
+        "summary": "Manager Menu",
+        "operationId": "manager_menu_manager_restaurants__restaurant_id__menu_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Restaurant Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MenuItemRead"
+                  },
+                  "title": "Response Manager Menu Manager Restaurants  Restaurant Id  Menu Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "manager"
+        ],
+        "summary": "Create Menu Item",
+        "operationId": "create_menu_item_manager_restaurants__restaurant_id__menu_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Restaurant Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MenuItemCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MenuItemRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/manager/restaurants/{restaurant_id}/menu/{item_id}": {
+      "patch": {
+        "tags": [
+          "manager"
+        ],
+        "summary": "Update Menu Item",
+        "operationId": "update_menu_item_manager_restaurants__restaurant_id__menu__item_id__patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Restaurant Id"
+            }
+          },
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Item Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MenuItemUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MenuItemRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "manager"
+        ],
+        "summary": "Delete Menu Item",
+        "operationId": "delete_menu_item_manager_restaurants__restaurant_id__menu__item_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Restaurant Id"
+            }
+          },
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Item Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders": {
+      "post": {
+        "tags": [
+          "orders"
+        ],
+        "summary": "Create Order",
+        "operationId": "create_order_orders_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrderCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders/me": {
+      "get": {
+        "tags": [
+          "orders"
+        ],
+        "summary": "Customer Order History",
+        "operationId": "customer_order_history_orders_me_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 10000,
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OrderRead"
+                  },
+                  "title": "Response Customer Order History Orders Me Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/manager/restaurants/{restaurant_id}/orders": {
+      "get": {
+        "tags": [
+          "manager"
+        ],
+        "summary": "Manager Orders",
+        "operationId": "manager_orders_manager_restaurants__restaurant_id__orders_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Restaurant Id"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 10000,
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ManagerIncomingOrderRead"
+                  },
+                  "title": "Response Manager Orders Manager Restaurants  Restaurant Id  Orders Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/manager/restaurants/{restaurant_id}/orders/{restaurant_order_id}": {
+      "patch": {
+        "tags": [
+          "manager"
+        ],
+        "summary": "Update an incoming restaurant order status",
+        "operationId": "update_restaurant_order_status_manager_restaurants__restaurant_id__orders__restaurant_order_id__patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Restaurant Id"
+            }
+          },
+          {
+            "name": "restaurant_order_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Restaurant Order Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RestaurantOrderStatusUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManagerIncomingOrderRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/managers": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Approve a manager for one restaurant",
+        "operationId": "approve_manager_admin_managers_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ManagerApproval"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "ManagerApproval": {
+        "properties": {
+          "oidc_subject": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "pattern": "^\\S+$",
+            "title": "Oidc Subject"
+          },
+          "restaurant_id": {
+            "type": "integer",
+            "exclusiveMinimum": 0.0,
+            "title": "Restaurant Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "oidc_subject",
+          "restaurant_id"
+        ],
+        "title": "ManagerApproval"
+      },
+      "ManagerIncomingOrderRead": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "customer_order_id": {
+            "type": "integer",
+            "title": "Customer Order Id"
+          },
+          "restaurant_id": {
+            "type": "integer",
+            "title": "Restaurant Id"
+          },
+          "restaurant_name": {
+            "type": "string",
+            "title": "Restaurant Name"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "received",
+              "preparing",
+              "ready",
+              "picked_up",
+              "cancelled"
+            ],
+            "title": "Status"
+          },
+          "subtotal": {
+            "type": "string",
+            "title": "Subtotal"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "fulfillment_method": {
+            "type": "string",
+            "title": "Fulfillment Method"
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/OrderLineRead"
+            },
+            "type": "array",
+            "title": "Lines"
+          },
+          "allowed_next_statuses": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "preparing",
+                "ready",
+                "picked_up",
+                "cancelled"
+              ]
+            },
+            "type": "array",
+            "title": "Allowed Next Statuses"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "customer_order_id",
+          "restaurant_id",
+          "restaurant_name",
+          "status",
+          "subtotal",
+          "created_at",
+          "fulfillment_method",
+          "lines",
+          "allowed_next_statuses"
+        ],
+        "title": "ManagerIncomingOrderRead"
+      },
+      "MenuItemCreate": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 4000,
+            "title": "Description",
+            "default": ""
+          },
+          "price": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Price"
+          },
+          "is_available": {
+            "type": "boolean",
+            "title": "Is Available",
+            "default": true
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name",
+          "price"
+        ],
+        "title": "MenuItemCreate"
+      },
+      "MenuItemRead": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "restaurant_id": {
+            "type": "integer",
+            "title": "Restaurant Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "price": {
+            "type": "string",
+            "title": "Price"
+          },
+          "is_available": {
+            "type": "boolean",
+            "title": "Is Available"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "restaurant_id",
+          "name",
+          "description",
+          "price",
+          "is_available"
+        ],
+        "title": "MenuItemRead"
+      },
+      "MenuItemUpdate": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 160,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 4000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "price": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price"
+          },
+          "is_available": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Available"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "MenuItemUpdate"
+      },
+      "OrderCreate": {
+        "properties": {
+          "fulfillment_method": {
+            "type": "string",
+            "const": "pickup",
+            "title": "Fulfillment Method"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/OrderLineCreate"
+            },
+            "type": "array",
+            "maxItems": 100,
+            "minItems": 1,
+            "title": "Items"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "fulfillment_method",
+          "items"
+        ],
+        "title": "OrderCreate"
+      },
+      "OrderLineCreate": {
+        "properties": {
+          "menu_item_id": {
+            "type": "integer",
+            "exclusiveMinimum": 0.0,
+            "title": "Menu Item Id"
+          },
+          "quantity": {
+            "type": "integer",
+            "maximum": 50.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Quantity"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "menu_item_id",
+          "quantity"
+        ],
+        "title": "OrderLineCreate"
+      },
+      "OrderLineRead": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "menu_item_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Menu Item Id"
+          },
+          "item_name": {
+            "type": "string",
+            "title": "Item Name"
+          },
+          "quantity": {
+            "type": "integer",
+            "title": "Quantity"
+          },
+          "unit_price": {
+            "type": "string",
+            "title": "Unit Price"
+          },
+          "line_total": {
+            "type": "string",
+            "title": "Line Total"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "menu_item_id",
+          "item_name",
+          "quantity",
+          "unit_price",
+          "line_total"
+        ],
+        "title": "OrderLineRead"
+      },
+      "OrderRead": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "fulfillment_method": {
+            "type": "string",
+            "title": "Fulfillment Method"
+          },
+          "total_amount": {
+            "type": "string",
+            "title": "Total Amount"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "restaurant_orders": {
+            "items": {
+              "$ref": "#/components/schemas/RestaurantOrderRead"
+            },
+            "type": "array",
+            "title": "Restaurant Orders"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "fulfillment_method",
+          "total_amount",
+          "created_at",
+          "restaurant_orders"
+        ],
+        "title": "OrderRead"
+      },
+      "RestaurantManagerRead": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "address": {
+            "type": "string",
+            "title": "Address"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "description",
+          "address",
+          "is_active"
+        ],
+        "title": "RestaurantManagerRead"
+      },
+      "RestaurantOrderRead": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "restaurant_id": {
+            "type": "integer",
+            "title": "Restaurant Id"
+          },
+          "restaurant_name": {
+            "type": "string",
+            "title": "Restaurant Name"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "received",
+              "preparing",
+              "ready",
+              "picked_up",
+              "cancelled"
+            ],
+            "title": "Status"
+          },
+          "subtotal": {
+            "type": "string",
+            "title": "Subtotal"
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/OrderLineRead"
+            },
+            "type": "array",
+            "title": "Lines"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "restaurant_id",
+          "restaurant_name",
+          "status",
+          "subtotal",
+          "lines"
+        ],
+        "title": "RestaurantOrderRead"
+      },
+      "RestaurantOrderStatusUpdate": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "preparing",
+              "ready",
+              "picked_up",
+              "cancelled"
+            ],
+            "title": "Status"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "title": "RestaurantOrderStatusUpdate"
+      },
+      "RestaurantRead": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "address": {
+            "type": "string",
+            "title": "Address"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "description",
+          "address",
+          "is_active"
+        ],
+        "title": "RestaurantRead"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    },
+    "securitySchemes": {
+      "HTTPBearer": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  }
+}
